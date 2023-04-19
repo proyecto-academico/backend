@@ -1,0 +1,29 @@
+name: Checkouts
+
+on:
+  push:
+    branches:
+      -main
+  pull_request:
+    branches:
+      -main
+  workflow_dispatch:
+  
+jobs:
+  trabajo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: trabajodecheckeo
+        run: echo "se esta ejecutando"
+        shell: bash
+  trabajoterminado:
+    runs-on: ubuntu-latest
+    steps:
+      - name: nosvemos
+        run: echo "nosvemos"
+        shell: bash
+      
+        
+  
+    
