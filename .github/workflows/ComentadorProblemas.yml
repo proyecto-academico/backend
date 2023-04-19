@@ -5,7 +5,7 @@ on:
     types: [opened]
 jobs:
   comment-with-action:
-    runs-on: ubutnu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: "error de contexto en github"
         run: echo '${{  toJSON(github.event) }}' | jq
