@@ -1,0 +1,15 @@
+name: Creador de comentarios en problemas/conflictos
+
+on:
+  issues:
+    types: [opened]
+jobs:
+  comment-with-action:
+    runs-on: ubutnu-latest
+    steps:
+      - name: "error de contexto en github"
+        run: echo '${{  toJSON(github.event) }}' | jq
+        shell: bash
+        
+      
+  
