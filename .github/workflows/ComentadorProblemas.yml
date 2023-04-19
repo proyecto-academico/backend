@@ -10,6 +10,16 @@ jobs:
       - name: "error de contexto en github"
         run: echo '${{  toJSON(github.event) }}' | jq
         shell: bash
-        
+      - name: Creador de comentario
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            this is a multi-line test comment
+            - With Github **Markdown** :sparkles:
+            - Created by [create-or-update-comment] [1]
+            [1]: https://github.com/peter-evans/create-or-update-comment
+          reactions: '+1'
+            
       
   
