@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+model administracion {
+  DNI_Admin Int @id 
+  Nombre String @db.VarChar(100)
+  Apellido String @db.VarChar(100)
+  Mail String @db.VarChar(100)
+  Contrasena String @db.VarChar(100)
+  //User @relation(fields: [authorId], references: [id])
+  
+}
+model alumno {
+  Dni_Alumno      Int      @id 
+  Nombre          String?  @db.VarChar(100) 
+  Apellido        String?   @db.VarChar(100)
+  Mail            String?   @db.VarChar(100)
+  contrasena String        @db.VarChar(100)
+}
+model Clase {
+  Clase_ID   Int        @id @default(autoincrement())
+  Division_ID Int 
+  Materia_ID   Int @unique 
+  Profesor_ID   Int @unique
+  Fecha_Comienzo    DateTime? @db.Date()
+  Fecha_Final       DateTime? @db.Date()
+}
+model division {
+  Division_ID     Int    @id @default(autoincrement())
+  Ano_Escolar  String @db.VarChar(50) 
+  Division_Escolar Int
+  Turno  String @db.VarChar(100)
+
+}
+model divison_de_alumno {
+  DivisionDA_ID  Int @id @default(autoincrement())
+  DNI_Alumno Int @unique
+  Division_ID Int
+  Anio_Calendario Int
+}
+model evaluaciones {
+  Evaluacion_ID Int @id @default(autoincrement())
+  Clase_ID Int
+  Fecha DateTime? @db.Date()
+  Detalles String @db.VarChar(100)
+}
+model faltas {
+  Falta_ID Int @id @default(autoincrement())
+  DNI_Alumno String @db.VarChar(100)
+  Fecha DateTime? @db.Date() 
+  Tipo Decimal @db.Decimal(10, 1)
+  jutificada Boolean
+}
+model materia {
+  Materia_ID Int @id @default(autoincrement())
+  Nombre String @db.VarChar(100)
+  Ano_escolar Int
+  Horas_Semanales Int 
+}
+model notas {
+  Notas_ID Int @id @default(autoincrement())
+  Nota Decimal @db.Decimal(10, 1)
+  DNI_Alumno Int
+  Evaluacion_ID Int @unique
+}
+model profesor {
+  DNI_Profesor Int @id @default(autoincrement())
+  Nombre	String @db.VarChar(100)
+  Apellido	String @db.VarChar(100)
+  Mail	String @db.VarChar(100)
+  Contrasena String @db.VarChar(100)
+}
