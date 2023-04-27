@@ -15,7 +15,7 @@ model administracion {
   Apellido String @db.VarChar(100)
   Mail String @db.VarChar(100)
   Contrasena String @db.VarChar(100)
-
+  //User @relation(fields: [authorId], references: [id])
   
 }
 model alumno {
@@ -24,16 +24,12 @@ model alumno {
   Apellido        String?   @db.VarChar(100)
   Mail            String?   @db.VarChar(100)
   contrasena String        @db.VarChar(100)
-  divisiones divison_de_alumno[]
-  notas notas[]
-  faltas faltas[]
 }
 model Clase {
   Clase_ID   Int        @id @default(autoincrement())
   Division_ID Int 
   Materia_ID   Int @unique 
-  Profesor profesor? @relation(fields: [Profesor_ID], references: [DNI_Profesor])
-  Profesor_ID  Int
+  Profesor_ID   Int @unique
   Fecha_Comienzo    DateTime? @db.Date()
   Fecha_Final       DateTime? @db.Date()
 }
@@ -46,8 +42,7 @@ model division {
 }
 model divison_de_alumno {
   DivisionDA_ID  Int @id @default(autoincrement())
-  Alumno alumno? @relation(fields: [DNi_Alumno], references: [Dni_Alumno])
-  DNi_Alumno Int? 
+  DNI_Alumno Int @unique
   Division_ID Int
   Anio_Calendario Int
 }
@@ -59,8 +54,7 @@ model evaluaciones {
 }
 model faltas {
   Falta_ID Int @id @default(autoincrement())
-  Alumno alumno? @relation(fields: [DNI_Alumno], references: [Dni_Alumno])
-  DNI_Alumno Int
+  DNI_Alumno String @db.VarChar(100)
   Fecha DateTime? @db.Date() 
   Tipo Decimal @db.Decimal(10, 1)
   jutificada Boolean
@@ -74,7 +68,6 @@ model materia {
 model notas {
   Notas_ID Int @id @default(autoincrement())
   Nota Decimal @db.Decimal(10, 1)
-  Alumno alumno? @relation(fields: [DNI_Alumno], references: [Dni_Alumno])
   DNI_Alumno Int
   Evaluacion_ID Int @unique
 }
@@ -84,5 +77,4 @@ model profesor {
   Apellido	String @db.VarChar(100)
   Mail	String @db.VarChar(100)
   Contrasena String @db.VarChar(100)
-  cursos Clase[]
 }
