@@ -30,10 +30,10 @@ model alumno {
 }
 model Clase {
   Clase_ID   Int        @id @default(autoincrement())
-  Division_ID Int 
-  Materia_ID   Int @unique 
+  Division_ID Int?
+  Materia_ID   Int? @unique 
   Profesor profesor? @relation(fields: [Profesor_ID], references: [DNI_Profesor])
-  Profesor_ID  Int
+  Profesor_ID  Int?
   Fecha_Comienzo    DateTime? @db.Date()
   Fecha_Final       DateTime? @db.Date()
 }
