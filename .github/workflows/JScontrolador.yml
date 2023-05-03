@@ -13,3 +13,11 @@
           directory: 'dist'
           ecmaVersion: 'es5'
           files: '*.js'
+      - name: Instalacion de dependecias
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Test
+        run: npm run test
+        
+          
