@@ -13,7 +13,7 @@ const port = 3000;
 //app.use(express.urlencoded)
 app.get('/welcome', function (req, res) {
     res.send();
-});
+});;
 async function main(){
 
     const post = await prisma.alumno.createMany({
