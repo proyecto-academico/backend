@@ -1,47 +1,63 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
-import express from 'express'
+import express, { json } from 'express'
 const app = express()
 const port = 3050;
 //const hostname = '10.120.2.114';
-
+app.listen(port, () => {
+    console.log('server is running at port number '+port)
+});
 app.get('/welcome', function (req, res) {
-    res.send("Pito");
+    res.send("<h1>PruebasdeGet</h1>");
 });
 
 app.post('/test', function (req, res) {
-    //  await.prisma.post.
-    datase = datase.json(req.body());
-    Data = main(datase)
-        .catch((e) => {
-            throw (e)
-        })
-        .finally(async () => {
-            await prisma.$disconnect()
+    
+    //console.log(req.data)
+    //Data = main(datase)
+    //   .catch((e) => {
+    //      throw (e)
+    // })
+    //.finally(async () => {
+    //   await prisma.$disconnect()
 
-        })
-    res.json(Data);
+    //})
+    //  res.json(Data);
 
 });
 
-app.get('/', function (req, res) {
-    res.send('Got a POST request');
+app.get('/', async function(req, res) {
+    //res.send('Got a POST request');
+    const getData = await prisma.alumno.findUnique({
+        where: {
+            Dni_Alumno: 462454212,
+        },
+    })
+    res.json(getData)
     //main()
     //    .catch((e) => {
     //        throw (e)
-     //   })
-       // .finally(async () => {
-        //    await prisma.$disconnect()
+    //    })
+    //    .finally(async () => {
+     //       await prisma.$disconnect()
 
-        //})
+       // })
+    
     //res.json();
 });
 
 
 
-//async function main(sentreq) {
-async function main(datase) {
-    
+
+async function main() {
+    const getData = await prisma.alumno.findUnique({
+        where: {
+            Dni_Alumno: 462454212,
+        },
+    })
+    console.log(getData);
+    return getData;
+
     //if (sentreq["action"] == "A") {
     //        return Fetchgrades(sentreq);
     //
@@ -49,17 +65,17 @@ async function main(datase) {
     // else if (sentreq["action"] == "B") {
     //   return FetchCourses(sentreq)
     //}
-    const getData = await prisma.alumno.findUnique({
-        where: {
-            Dni_Alumno: datase["username"],
-            contrasena: datase["pwd"]
-
-        },
-        select: {
-            notas: true,
-        },
-    })
-    console.log(getData);
+    //const getData = await prisma.alumno.findUnique({
+    //    where: {
+    //       Dni_Alumno: datase["username"],
+    //      contrasena: datase["pwd"]
+    //
+    //      },
+    //    select: {
+    //      notas: true,
+    // },
+    //})
+    // console.log(getData);
 
 
     //const post = await prisma.alumno.createMany({
@@ -120,7 +136,7 @@ async function fetchSkips(req) {
 }
 
 async function addstudent(req) {
-    const sutdent = await prisma.alumno.Create({
+    const sutdent = await prisma.alumno.create({
         data: [
             { Dni_Alumno: '462454212', Nombre: 'Lucas', Apellido: 'Abdhala', Mail: 'porraasee@gmail.com', contrasena: "Conweeatra1521" }
         ]
@@ -154,9 +170,7 @@ async function search() {
         },
     })
 }
-app.listen(port, () => {
-    console.log('server is running at port number 3000')
-});
+
 async function addclass1(req) {
     const classs = await prisma.administracion.create({
         data: {
