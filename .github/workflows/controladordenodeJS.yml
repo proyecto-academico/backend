@@ -21,6 +21,6 @@ jobs:
         with:
           node-version: 16
       - name: Instalacion de dependecias
-        run: npm install
+        run: npm install @prisma/client
 
 
