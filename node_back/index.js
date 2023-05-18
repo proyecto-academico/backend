@@ -1,52 +1,86 @@
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
-import express, { json } from 'express'
-const app = express()
+//Imports Elements
+import { PrismaClient } from "@prisma/client";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import session from "express-session";
+import bodyParser from 'body-parser';
+const prisma = new PrismaClient();
+import express, { json, query } from "express";
+
+//declaring express
+const app = express();
+
+//route
 const port = 3050;
 //const hostname = '10.120.2.114';
+app.use(app.url)
+//uses
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+app.use(cookieParser());
+
+app.use(
+  session({
+    secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 },
+    resave: false,
+  })
+);
+
+//setting port
 app.listen(port, () => {
-    console.log('server is running at port number '+port)
+  console.log("server is running at port number " + port);
 });
-app.get('/welcome', function (req, res) {
-    res.send("<h1>PruebasdeGet</h1>");
-});
-
-app.post('/test', function (req, res) {
-    
-    //console.log(req.data)
-    //Data = main(datase)
-    //   .catch((e) => {
-    //      throw (e)
-    // })
-    //.finally(async () => {
-    //   await prisma.$disconnect()
-
-    //})
-    //  res.json(Data);
-
+app.get("/welcome", function (req, res) {
+  res.json();
 });
 
-app.get('/', async function(req, res) {
-    //res.send('Got a POST request');
+app.post("/test", async function (req, res) {
+  
+  //check session details
+    console.log(req.body);
+    console.log("\n\n\n\n");
+    ///console.log(res);
+
+    //const query = await prisma.profesor.findUniqueOrThrow({
+    //where: {
+    //  DNI_Profesor: req.body.user,
+    //  contrasena: req.body.pwd,
+    //},
+  //});
+
+  //})
+  
+  //res.cookie("Details_Name", randomNumber, { maxAge: 900000, httpOnly: true });
+  //res.json(Data);
+});
+
+app.get("/login", async function (req, res) {
+  //res.send('Got a POST request');
+  if (session.userId) {
     const getData = await prisma.alumno.findUnique({
-        where: {
-            Dni_Alumno: 462454212,
-        },
-    })
-    res.json(getData)
-    //main()
-    //    .catch((e) => {
-    //        throw (e)
-    //    })
-    //    .finally(async () => {
-     //       await prisma.$disconnect()
+      where: {
+        Dni_Alumno: 462454212,
+      },
+    });
+  }
+  res.json(getData);
 
-       // })
-    
-    //res.json();
+  //main()
+  //    .catch((e) => {
+  //        throw (e)
+  //    })
+  //    .finally(async () => {
+  //       await prisma.$disconnect()
+
+  // })
+
+  //res.json();
 });
-
-
 
 
 async function main() {
