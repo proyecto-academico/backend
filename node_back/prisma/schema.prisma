@@ -31,7 +31,9 @@ model alumno {
 model Clase {
   Clase_ID   Int        @id @default(autoincrement())
   Division_ID Int 
+  Division division? @relation(fields:[Division_ID], references: [Division_ID])
   Materia_ID   Int @unique 
+  Materia materia? @relation(fields:[Materia_ID], references: [Materia_ID])
   Profesor profesor? @relation(fields: [Profesor_ID], references: [DNI_Profesor])
   Profesor_ID  Int
   Fecha_Comienzo    DateTime? @db.Date()
@@ -39,6 +41,7 @@ model Clase {
 }
 model division {
   Division_ID     Int    @id @default(autoincrement())
+  Materias Clase[]
   Ano_Escolar  String @db.VarChar(50) 
   Division_Escolar Int
   Turno  String @db.VarChar(100)
@@ -67,6 +70,7 @@ model faltas {
 }
 model materia {
   Materia_ID Int @id @default(autoincrement())
+  cursos Clase[]
   Nombre String @db.VarChar(100)
   Ano_escolar Int
   Horas_Semanales Int 

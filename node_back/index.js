@@ -2,8 +2,6 @@
 import { PrismaClient } from "@prisma/client";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-
-
 import session from "express-session";
 import bodyParser from 'body-parser';
 const prisma = new PrismaClient();
@@ -28,8 +26,6 @@ app.use(
 app.use(cookieParser());
 
 
-
-
 app.use(bodyParser.json());
 app.use(
     session({
@@ -37,9 +33,9 @@ app.use(
         saveUninitialized: false,
         cookie: { maxAge: 1000 * 60 * 60 * 24 },
         resave: false,
+        
     })
 );
-
 
 
 
@@ -47,21 +43,17 @@ app.use(
 app.listen(port, () => {
     console.log("server is running at port number " + port);
 });
-app.get("/welcome", function (req, res) {
-    res.json();
-});
-
 
 app.post("/test", async function (req, res) {
 
     //check session details
     console.log(req.body);
-    console.log("\n");
-    console.log(`${req.body["pwd"]} && ${req.body["user"]}`)
-
 
     if (req.body["pwd"] != undefined && req.body["user"] != undefined) {
         const query = await prisma.profesor.findFirst({
+            select:{
+                DNI_Profesor
+            },
             where: {
                 AND: {
                     Mail: req.body["user"],
@@ -69,19 +61,35 @@ app.post("/test", async function (req, res) {
                 }
             },
         });
-        query == null ?? res.json(query);
-        const al = await prisma.profesor.findFirst({
-            where: {
-                Mail: req.body["user"],
-                Contrasena: crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'),
-            },
-        })
-        al == null ?? res.json(al);
-        res.cookie("Details_Name", randomNumber, { maxAge: 900000, httpOnly: true });
+        if (query !=null) {
+            res.json({"loggedin":true,"name":query["DNI_Profesor"],"type":"Profesor"});
+            
+        }
+        else{
+            const al = await prisma.profesor.findFirst({
+                where: {
+                    Mail: req.body["user"],
+                    Contrasena: crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'),
+                },
+            })
+            if (al != null){
+                res.json({"loggedin":true,"name":query["DNI_Profesor"],"type":"Profesor"});
+                res.cookie("Details_Name", randomNumber, { maxAge: 900000, httpOnly: true });
+            }
+            else{
+                res.json({"loggedin":false})
+            }
+        }
+        
+       
+        
 
 
 
 
+    }
+    else {
+        res.send({"logeedin":false})
     }
 });
 
@@ -120,8 +128,6 @@ app.post("/grades", async function (req, res) {
 
 
 async function Fetchgradesal(req) {
-
-
     if (session.userId) {
         const getData = await prisma.notas.findMany({
     where: {
@@ -146,13 +152,18 @@ async function Fetchgradesal(req) {
 
 }
 async function FetchCourses(req) {
-    const getData = await prisma.alumno.findUnique({
+    const ontainingCourses = await prisma.profesor.findManywhere({
         where: {
-            Dni_Alumno: req["dni"],
-        },
-        select: {
-            divisiones: true,
-        },
+        DNI_Profesor: "SessionIDNI",
+    },
+    select: {
+        cursos: {
+            Materia:{
+                Nombre
+            }
+            
+        }
+    }
     })
 
 
