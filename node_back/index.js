@@ -1,71 +1,149 @@
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
-import express from 'express'
-const app = express()
-const port = 3000;
-//const hostname = '10.120.2.114';
+//Imports Elements
+import { PrismaClient } from "@prisma/client";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 
-app.get('/welcome', function (req, res) {
-    res.send("Pito");
+
+import session from "express-session";
+import bodyParser from 'body-parser';
+const prisma = new PrismaClient();
+import crypto from "crypto";
+import express, { json, query } from "express";
+
+
+//declaring express
+const app = express();
+
+
+//route
+const port = 3070;
+
+
+//uses
+app.use(
+    cors({
+        origin: "*",
+    })
+);
+app.use(cookieParser());
+
+
+
+
+app.use(bodyParser.json());
+app.use(
+    session({
+        secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
+        saveUninitialized: false,
+        cookie: { maxAge: 1000 * 60 * 60 * 24 },
+        resave: false,
+    })
+);
+
+
+
+
+//setting port
+app.listen(port, () => {
+    console.log("server is running at port number " + port);
+});
+app.get("/welcome", function (req, res) {
+    res.json();
 });
 
-app.post('/', function (req, res) {
-    //  await.prisma.post.
-    Data = main(req)
-        .catch((e) => {
-            throw (e)
+
+app.post("/test", async function (req, res) {
+
+    //check session details
+    console.log(req.body);
+    console.log("\n");
+    console.log(`${req.body["pwd"]} && ${req.body["user"]}`)
+
+
+    if (req.body["pwd"] != undefined && req.body["user"] != undefined) {
+        const query = await prisma.profesor.findFirst({
+            where: {
+                AND: {
+                    Mail: req.body["user"],
+                    Contrasena: crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'),
+                }
+            },
+        });
+        query == null ?? res.json(query);
+        const al = await prisma.profesor.findFirst({
+            where: {
+                Mail: req.body["user"],
+                Contrasena: crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'),
+            },
         })
-        .finally(async () => {
-            await prisma.$disconnect()
-
-        })
-    res.json(Data);
-});
-
-app.get('/', function (req, res) {
-    res.json()
-    res.send('Got a POST request');
-});
+        al == null ?? res.json(al);
+        res.cookie("Details_Name", randomNumber, { maxAge: 900000, httpOnly: true });
 
 
 
-async function main(sentreq) {
-
-    if (sentreq["action"] == "A") {
-        return Fetchgrades(sentreq);
 
     }
-    else if (sentreq["action"] == "B"){
-        return FetchCourses(sentreq)
+});
+
+
+app.get("/login", async function (req, res) {
+    if (req.body["pwd"] != undefined && req.body["user"] != undefined) {
+        const query = await prisma.profesor.findFirst({
+            where: {
+                Mail: req.body["user"],
+                Contrasena: crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'),
+            },
+        });
+        query == null ?? res.json(query);
+        const al = await prisma.profesor.findFirst({
+            where: {
+                Mail: req.body["user"],
+                Contrasena: crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'),
+            },
+        })
+        al == null ?? res.json(al);
+        res.cookie("Details_Name", randomNumber, { maxAge: 900000, httpOnly: true });
+    }
+
+
+    /*
+*/
+});
+app.post("/grades", async function (req, res) {
+    if(session.userId && session.userint != "Profesor"){
+        idalumno = session.dni;
+    }
+    else {
+        //idalumno =
+    }
+})
+
+
+async function Fetchgradesal(req) {
+
+
+    if (session.userId) {
+        const getData = await prisma.notas.findMany({
+    where: {
+                Dni_Alumno: 4531
+            },
+            select: {
+                notas: true,
+                ad
+
+
+            },
+        })
+
+
+        res.json(getData);
     }
 
 
 
-    const post = await prisma.alumno.createMany({
-        data: [
-            { Dni_Alumno: '462454212', Nombre: 'Lucas', Apellido: 'Abdhala', Mail: 'porraasee@gmail.com', contrasena: "Conweeatra1521" },
-            { Dni_Alumno: '46254454212', Nombre: 'Lucas', Apellido: 'Abdhala', Mail: 'porras@gmail.com', contrasena: "Coeantra1521" },
-            { Dni_Alumno: '46246554212', Nombre: 'Lucas', Apellido: 'Abdhala', Mail: 'porra@gmail.com', contrasena: "Condsatra1521" },
-            { Dni_Alumno: '121234', Nombre: 'Lucas', Apellido: 'Abdhala', Mail: 'porraassa@gmail.com', contrasena: "Coasdntra1521" }
-        ]
 
-    })
 
-    console.log(post)
 
-}
-
-async function Fetchgrades(req) {
-    const getData = await prisma.alumno.findUnique({
-        where: {
-            Dni_Alumno: req["dni"],
-        },
-        select: {
-            notas: true,
-        },
-    })
-
-    return getData;
 }
 async function FetchCourses(req) {
     const getData = await prisma.alumno.findUnique({
@@ -77,10 +155,12 @@ async function FetchCourses(req) {
         },
     })
 
+
     return getData;
 }
 
-async function fetchSkips(req){
+
+async function fetchSkips(req) {
     const getData = await prisma.alumno.findUnique({
         where: {
             Dni_Alumno: req["dni"],
@@ -90,12 +170,88 @@ async function fetchSkips(req){
         },
     })
 
+
     return getData;
 }
 
 
+async function addstudent(req) {
+    const sutdent = await prisma.alumno.create({
+        data: [
+            { Dni_Alumno: '462454212', Nombre: 'Lucas', Apellido: 'Abdhala', Mail: 'porraasee@gmail.com', contrasena: "Conweeatra1521" }
+        ]
+    })
+    console.log(sutdent);
+}
 
 
-app.listen(port, () => {
-    console.log('server is running at port number 3000')
-});
+async function addclass(req) {
+    const classs = await prisma.Clase.create({
+        data: {
+            Clase_ID: "",
+            Division_ID: "",
+            Materia_ID: "",
+            Profesor_ID: ""
+
+
+
+
+        }
+
+
+
+
+    })
+}
+async function search() {
+    const getPosts = await prisma.profesor.findMany({
+        where: {
+            name: {
+                contains: 'cookies',
+            },
+        },
+        include: {
+            cursos: true, // Return all fields
+        },
+    })
+}
+
+
+async function addclass1(req) {
+    const classs = await prisma.administracion.create({
+        data: {
+            DNI_Admin: 1,
+            Nombre: "",
+            Apellido: "",
+            Mail: "",
+            Contrasena: "",
+
+
+        }
+
+
+
+
+    })
+}
+
+
+async function addclass2(req) {
+    const classs = await prisma.alumno.create({
+        data: {
+
+
+            Dni_Alumno: 1,
+            Nombre: "",
+            Apellido: "",
+            Mail: "",
+            contrasena: "",
+        }
+
+
+
+
+    })
+}
+
+
