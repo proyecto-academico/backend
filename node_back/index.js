@@ -48,33 +48,35 @@ app.post("/test", async function (req, res) {
 
     //check session details
     console.log(req.body);
-
-    if (req.body["pwd"] != undefined && req.body["user"] != undefined) {
+    console.log(crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'))
+    if (req.body["pwd"] != undefined && req.body["username"] != undefined) {
         const query = await prisma.profesor.findFirst({
-            select:{
+         /*   select:{
                 DNI_Profesor
-            },
+            },*/
             where: {
                 AND: {
-                    Mail: req.body["user"],
+                    Mail: req.body["username"],
                     Contrasena: crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'),
                 }
             },
         });
+        console.log(query)
         if (query !=null) {
-            res.json({"loggedin":true,"name":query["DNI_Profesor"],"type":"Profesor"});
+            res.json({"loggedin":true,"name":query.DNI_Profesor,"type":"Profesor"});
             
         }
         else{
-            const al = await prisma.profesor.findFirst({
+            const al = await prisma.alumno.findFirst({
                 where: {
-                    Mail: req.body["user"],
-                    Contrasena: crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'),
+                    Mail: req.body["username"],
+                    contrasena: crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'),
                 },
             })
+            console.log(al)
             if (al != null){
-                res.json({"loggedin":true,"name":query["DNI_Profesor"],"type":"Profesor"});
-                res.cookie("Details_Name", randomNumber, { maxAge: 900000, httpOnly: true });
+                res.json({"loggedin":true,"name":al.Dni_Alumno,"type":"Alumno"});
+                //res.cookie("Details_Name", randomNumber, { maxAge: 900000, httpOnly: true });
             }
             else{
                 res.json({"loggedin":false})
@@ -161,6 +163,9 @@ async function FetchCourses(req) {
             Materia:{
                 Nombre
             }
+            
+        }
+        division:{
             
         }
     }
