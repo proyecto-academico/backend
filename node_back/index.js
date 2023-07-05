@@ -64,7 +64,7 @@ app.post("/test", async function (req, res) {
         console.log(query)
         if (query !=null) {
             res.json({"loggedin":true,"name":query.DNI_Profesor,"type":"Profesor"});
-            
+            //res.cookie("Details_Name", randomNumber, { maxAge: 900000, httpOnly: true });              
         }
         else{
             const al = await prisma.alumno.findFirst({
@@ -128,6 +128,21 @@ app.post("/grades", async function (req, res) {
     }
 })
 
+app.post("/profesor/courses", async function (req,res){
+    console.log(req)
+    res.json(FetchCourses(req.body))
+    
+})
+app.post("/Grades", async function (req,res){
+    res.json(Fetchgradesal(req.body))
+})
+
+app.post("/alumno/faltas", async function (req,res){
+    res.json(fetchSkips(req.body))
+})
+app.post("/profesor/courses/notas", async function (req,res){
+    res.json(Fetchgradesal(req.body))
+})
 
 async function Fetchgradesal(req) {
     if (session.userId) {
@@ -137,14 +152,14 @@ async function Fetchgradesal(req) {
             },
             select: {
                 notas: true,
-                ad
+                
 
 
             },
         })
 
 
-        res.json(getData);
+        return(getData);
     }
 
 
@@ -156,23 +171,24 @@ async function Fetchgradesal(req) {
 async function FetchCourses(req) {
     const ontainingCourses = await prisma.profesor.findManywhere({
         where: {
-        DNI_Profesor: "SessionIDNI",
+        DNI_Profesor: 12233445,
     },
     select: {
         cursos: {
             Materia:{
                 Nombre
+            },
+            Division:{
+                Ano_Escolar,
+                Division_Escolar
             }
-            
         }
-        division:{
-            
-        }
+       
     }
     })
 
 
-    return getData;
+    return ontainingCourses;
 }
 
 
@@ -190,7 +206,7 @@ async function fetchSkips(req) {
     return getData;
 }
 
-
+/*
 async function addstudent(req) {
     const sutdent = await prisma.alumno.create({
         data: [
@@ -269,5 +285,5 @@ async function addclass2(req) {
 
     })
 }
-
+*/
 

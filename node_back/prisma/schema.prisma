@@ -6,6 +6,7 @@ generator client {
 }
 
 datasource db {
+  //provider = "sqlserver"
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
@@ -42,9 +43,11 @@ model Clase {
 model division {
   Division_ID     Int    @id @default(autoincrement())
   Materias Clase[]
+  alumnos divison_de_alumno[]
   Ano_Escolar  String @db.VarChar(50) 
   Division_Escolar Int
   Turno  String @db.VarChar(100)
+
 
 }
 model divison_de_alumno {
@@ -52,6 +55,7 @@ model divison_de_alumno {
   Alumno alumno? @relation(fields: [DNi_Alumno], references: [Dni_Alumno])
   DNi_Alumno Int? 
   Division_ID Int
+  division_actual division?  @relation(fields: [Division_ID], references: [Division_ID])
   Anio_Calendario Int
 }
 model evaluaciones {
