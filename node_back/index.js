@@ -129,7 +129,7 @@ app.post("/grades", async function (req, res) {
 })
 
 app.post("/profesor/courses", async function (req,res){
-    console.log(req)
+    //console.log(req)
     res.json(FetchCourses(req.body))
     
 })
@@ -169,19 +169,27 @@ async function Fetchgradesal(req) {
 
 }
 async function FetchCourses(req) {
-    const ontainingCourses = await prisma.profesor.findManywhere({
+    const ontainingCourses = await prisma.profesor.findMany({
         where: {
         DNI_Profesor: 12233445,
     },
     select: {
         cursos: {
-            Materia:{
-                Nombre
-            },
-            Division:{
-                Ano_Escolar,
-                Division_Escolar
-            }
+    
+                Materia:{
+                    select :{
+                        Nombre : true
+                    }
+                
+                },
+
+                Division:{
+                    select :{
+                    Ano_Escolar : true ,
+                    Division_Escolar : true
+                }    
+                }
+            
         }
        
     }

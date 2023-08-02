@@ -12,19 +12,27 @@ datasource db {
 }
 model administracion {
   DNI_Admin Int @id 
-  Nombre String @db.VarChar(100)
-  Apellido String @db.VarChar(100)
-  Mail String @db.VarChar(100)
-  Contrasena String @db.VarChar(100)
+  Nombre String @db.VarChar(50)
+  Apellido String @db.VarChar(50)
+  Mail String @db.VarChar(50)
+  Contrasena String @db.VarChar(50)
 
   
 }
+//model persona {
+//  DNI      Int      @id 
+//  Nombre          String?  @db.VarChar(50) 
+//  Apellido        String?   @db.VarChar(50)
+ // Mail            String?   @db.VarChar(50)
+ // Contrasena String        @db.VarChar(50)
+ // Nivel Int 
+//}
 model alumno {
   Dni_Alumno      Int      @id 
-  Nombre          String?  @db.VarChar(100) 
-  Apellido        String?   @db.VarChar(100)
-  Mail            String?   @db.VarChar(100)
-  contrasena String        @db.VarChar(100)
+  Nombre          String?  @db.VarChar(50) 
+  Apellido        String?   @db.VarChar(50)
+  Mail            String?   @db.VarChar(50)
+  contrasena String        @db.VarChar(50)
   divisiones divison_de_alumno[]
   notas notas[]
   faltas faltas[]
@@ -46,7 +54,7 @@ model division {
   alumnos divison_de_alumno[]
   Ano_Escolar  String @db.VarChar(50) 
   Division_Escolar Int
-  Turno  String @db.VarChar(100)
+  Turno  String @db.VarChar(50)
 
 
 }
@@ -62,7 +70,7 @@ model evaluaciones {
   Evaluacion_ID Int @id @default(autoincrement())
   Clase_ID Int
   Fecha DateTime? @db.Date()
-  Detalles String @db.VarChar(100)
+  Detalles String @db.VarChar(50)
 }
 model faltas {
   Falta_ID Int @id @default(autoincrement())
@@ -75,22 +83,29 @@ model faltas {
 model materia {
   Materia_ID Int @id @default(autoincrement())
   cursos Clase[]
-  Nombre String @db.VarChar(100)
+  Nombre String @db.VarChar(50)
   Ano_escolar Int
   Horas_Semanales Int 
 }
 model notas {
   Notas_ID Int @id @default(autoincrement())
-  Nota Decimal @db.Decimal(10, 1)
+  Nota Decimal @db.Decimal(10, 2)
   Alumno alumno? @relation(fields: [DNI_Alumno], references: [Dni_Alumno])
   DNI_Alumno Int
   Evaluacion_ID Int @unique
 }
+//model notas2 {
+// Notas_ID Int @id @default(autoincrement())
+//  Nota Decimal @db.Decimal(10, 2)
+//  Alumno persona? @relation(fields: [DNI_Alumno], references: [DNI])
+//  DNI_Alumno Int
+//  Evaluacion_ID Int @unique
+//} 
 model profesor {
   DNI_Profesor Int @id @default(autoincrement())
-  Nombre	String @db.VarChar(100)
-  Apellido	String @db.VarChar(100)
-  Mail	String @db.VarChar(100)
-  Contrasena String @db.VarChar(100)
+  Nombre	String @db.VarChar(50)
+  Apellido	String @db.VarChar(50)
+  Mail	String @db.VarChar(50)
+  Contrasena String @db.VarChar(50)
   cursos Clase[]
 }
