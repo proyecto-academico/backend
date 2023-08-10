@@ -7,6 +7,7 @@ import bodyParser from 'body-parser';
 const prisma = new PrismaClient();
 import crypto from "crypto";
 import express, { json, query } from "express";
+import { Console } from "console";
 
 
 //declaring express
@@ -25,8 +26,8 @@ app.use(
 );
 app.use(cookieParser());
 
-
 app.use(bodyParser.json());
+
 app.use(
     session({
         secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
@@ -95,7 +96,7 @@ app.post("/test", async function (req, res) {
     }
 });
 
-
+//
 app.get("/login", async function (req, res) {
     if (req.body["pwd"] != undefined && req.body["user"] != undefined) {
         const query = await prisma.profesor.findFirst({
@@ -130,7 +131,8 @@ app.post("/grades", async function (req, res) {
 
 app.post("/profesor/courses", async function (req,res){
     //console.log(req)
-    res.json(FetchCourses(req.body))
+    const courses = await FetchCourses(req.body)
+    res.json(courses[0].cursos)
     
 })
 app.post("/Grades", async function (req,res){
@@ -175,10 +177,11 @@ async function FetchCourses(req) {
     },
     select: {
         cursos: {
-    
-                Materia:{
+            select:{
+            Materia:{
                     select :{
                         Nombre : true
+                        
                     }
                 
                 },
@@ -189,14 +192,15 @@ async function FetchCourses(req) {
                     Division_Escolar : true
                 }    
                 }
-            
+            }
         }
        
     }
     })
 
-
-    return ontainingCourses;
+    //console.log(JSON.stringify(ontainingCourses))
+    //return JSON.parse(ontainingCourses);
+    return ontainingCourses
 }
 
 
