@@ -34,7 +34,7 @@ app.use(
         saveUninitialized: false,
         cookie: { maxAge: 1000 * 60 * 60 * 24 },
         resave: false,
-        
+
     })
 );
 
@@ -52,9 +52,9 @@ app.post("/test", async function (req, res) {
     console.log(crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'))
     if (req.body["pwd"] != undefined && req.body["username"] != undefined) {
         const query = await prisma.profesor.findFirst({
-         /*   select:{
-                DNI_Profesor
-            },*/
+            /*   select:{
+                   DNI_Profesor
+               },*/
             where: {
                 AND: {
                     Mail: req.body["username"],
@@ -63,11 +63,11 @@ app.post("/test", async function (req, res) {
             },
         });
         console.log(query)
-        if (query !=null) {
-            res.json({"loggedin":true,"name":query.DNI_Profesor,"type":"Profesor"});
+        if (query != null) {
+            res.json({ "loggedin": true, "name": query.DNI_Profesor, "type": "Profesor" });
             //res.cookie("Details_Name", randomNumber, { maxAge: 900000, httpOnly: true });              
         }
-        else{
+        else {
             const al = await prisma.alumno.findFirst({
                 where: {
                     Mail: req.body["username"],
@@ -75,24 +75,24 @@ app.post("/test", async function (req, res) {
                 },
             })
             console.log(al)
-            if (al != null){
-                res.json({"loggedin":true,"name":al.Dni_Alumno,"type":"Alumno"});
+            if (al != null) {
+                res.json({ "loggedin": true, "name": al.Dni_Alumno, "type": "Alumno" });
                 //res.cookie("Details_Name", randomNumber, { maxAge: 900000, httpOnly: true });
             }
-            else{
-                res.json({"loggedin":false})
+            else {
+                res.json({ "loggedin": false })
             }
         }
-        
-       
-        
+
+
+
 
 
 
 
     }
     else {
-        res.send({"logeedin":false})
+        res.send({ "logeedin": false })
     }
 });
 
@@ -121,7 +121,7 @@ app.get("/login", async function (req, res) {
 */
 });
 app.post("/grades", async function (req, res) {
-    if(session.userId && session.userint != "Profesor"){
+    if (session.userId && session.userint != "Profesor") {
         idalumno = session.dni;
     }
     else {
@@ -129,39 +129,56 @@ app.post("/grades", async function (req, res) {
     }
 })
 
-app.post("/profesor/courses", async function (req,res){
+app.post("/profesor/years/courses", async function (req, res) {
+    //console.log(req)
+    const courses = await FetchCourses(req.body)
+    console.log(courses[0].cursos)
+    const res_courses = settingJsonCourses(courses[0].cursos)
+    const years_worked = obtainingyears(courses[0].cursos)
+    
+    res.json(res_courses)
+    //res.json(courses[0].cursos)
+
+})
+app.post("/profesor/years", async function (req, res) {
+    const courses = await FetchCourses(req.body)
+    const years_worked = obtainingyears(courses[0].cursos)
+    console.log(years_worked)
+    res.json(years_worked)
+})
+
+app.post("/Grades", async function (req, res) {
+    res.json(Fetchgradesal(req.body))
+})
+app.post("/student/courses", async function (req, res) {
     //console.log(req)
     const courses = await FetchCourses(req.body)
     res.json(courses[0].cursos)
-    
-})
-app.post("/Grades", async function (req,res){
-    res.json(Fetchgradesal(req.body))
-})
 
-app.post("/alumno/faltas", async function (req,res){
+})
+app.post("/alumno/faltas", async function (req, res) {
     res.json(fetchSkips(req.body))
 })
-app.post("/profesor/courses/notas", async function (req,res){
+app.post("/profesor/courses/notas", async function (req, res) {
     res.json(Fetchgradesal(req.body))
 })
 
 async function Fetchgradesal(req) {
     if (session.userId) {
         const getData = await prisma.notas.findMany({
-    where: {
+            where: {
                 Dni_Alumno: 4531
             },
             select: {
                 notas: true,
-                
+
 
 
             },
         })
 
 
-        return(getData);
+        return (getData);
     }
 
 
@@ -170,39 +187,90 @@ async function Fetchgradesal(req) {
 
 
 }
+class Course {
+    constructor(Materia, Division, Ano_Escolar, ano_actual) {
+        this.Materia = Materia;
+        this.Ano_Escolar = Ano_Escolar;
+        this.Division = Division;
+        this.ano_actual = ano_actual;
+    }
+}
+//async function courseStudent 
 async function FetchCourses(req) {
     const ontainingCourses = await prisma.profesor.findMany({
         where: {
-        DNI_Profesor: 12233445,
-    },
-    select: {
-        cursos: {
-            select:{
-            Materia:{
-                    select :{
-                        Nombre : true
-                        
-                    }
-                
-                },
+            DNI_Profesor: 12233445,
+        },
+        select: {
+            cursos: {
+                select: {
+                    Materia: {
+                        select: {
+                            Nombre: true
 
-                Division:{
-                    select :{
-                    Ano_Escolar : true ,
-                    Division_Escolar : true
-                }    
+                        }
+
+                    },
+
+                    Division: {
+                        select: {
+                            Ano_Escolar: true,
+                            Division_Escolar: true
+
+                        }
+                    },
+                    Fecha_Comienzo: true,
+                    Fecha_Final: true
                 }
+
             }
+
         }
-       
-    }
     })
 
     //console.log(JSON.stringify(ontainingCourses))
     //return JSON.parse(ontainingCourses);
     return ontainingCourses
 }
+function settingJsonCourses(courses) {
+    var defined_courses = [];
+    var years = {};
+    var course_year;
+    for (var i = 0; i < courses.length; i++) {
+        course_year = courses[i].Fecha_Comienzo.getFullYear();
 
+        if (years[course_year] == null) {
+            years[course_year] = [];
+            years[course_year].push(new Course(courses[i].Materia.Nombre, courses[i].Division.Ano_Escolar, courses[i].Division.Division_Escolar, courses[i].Fecha_Comienzo.getFullYear())
+            )
+            defined_courses[i] = new Course(courses[i].Materia.Nombre, courses[i].Division.Ano_Escolar, courses[i].Division.Division_Escolar, courses[i].Fecha_Comienzo.getFullYear())
+
+        }
+        else {
+            years[course_year].push(new Course(courses[i].Materia.Nombre, courses[i].Division.Ano_Escolar, courses[i].Division.Division_Escolar, courses[i].Fecha_Comienzo.getFullYear()))
+        }
+        //    anos_escolares.courses[i].Fecha_Comienzo.getFullYear() = []; 
+
+        //  anos_escolares.courses[i].Fecha_Comienzo.getFullYear().push(new Course(courses[i].Materia.Nombre,courses[i].Division.Ano_Escolar,courses[i].Division.Division_Escolar,courses[i].Fecha_Comienzo.getFullYear()))
+
+    }
+    console.log(years)
+    //console.log(defined_courses);
+    return years;
+
+}
+function obtainingyears(courses){
+    var years =[];
+    var i;
+    for(i=0;i<courses.length;i++){
+        var course_year = courses[i].Fecha_Comienzo.getFullYear();
+        
+        if (years.indexOf(course_year) == -1){
+            years.push(course_year);
+        }
+    }
+     return years
+}
 
 async function fetchSkips(req) {
     const getData = await prisma.alumno.findUnique({
