@@ -130,18 +130,19 @@ app.post("/grades", async function (req, res) {
 })
 
 app.post("/profesor/years/courses", async function (req, res) {
-    //console.log(req)
+    console.log("Años" + req.body)
+    console.log(req)
     const courses = await FetchCourses(req.body)
     console.log(courses[0].cursos)
     const res_courses = settingJsonCourses(courses[0].cursos)
     const years_worked = obtainingyears(courses[0].cursos)
-    
+    console.log(res_courses)
     res.json(res_courses)
     //res.json(courses[0].cursos)
 
 })
 app.post("/profesor/years", async function (req, res) {
-    const courses = await FetchCourses(req.body)
+    const courses = await settingJsonCourses(FetchCourses(req.body))
     const years_worked = obtainingyears(courses[0].cursos)
     console.log(years_worked)
     res.json(years_worked)
@@ -153,7 +154,10 @@ app.post("/Grades", async function (req, res) {
 app.post("/student/courses", async function (req, res) {
     //console.log(req)
     const courses = await FetchCourses(req.body)
-    res.json(courses[0].cursos)
+    console.log(courses[0].cursos)
+    const jsonParsedCourses = settingJsonCourses(courses[0].cursos)
+    console.log(jsonParsedCourses['2023'])
+    res.json(jsonParsedCourses['2023'])
 
 })
 app.post("/alumno/faltas", async function (req, res) {

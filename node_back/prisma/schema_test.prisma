@@ -3,11 +3,12 @@
 
 generator client {
   provider = "prisma-client-js"
+  //previewFeatures = ["microsoftSqlServer"]
 }
 
 datasource db {
-  //provider = "sqlserver"
-  provider = "mysql"
+  provider = "sqlserver"
+  //provider = "mysql"
   url      = env("DATABASE_URL")
 }
 model administracion {
