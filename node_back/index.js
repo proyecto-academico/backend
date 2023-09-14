@@ -64,6 +64,7 @@ app.post("/test", async function (req, res) {
         });
         console.log(query)
         if (query != null) {
+            res.cookie("id", query.Dni_Alumno, { maxAge: 900000, httpOnly: true });
             res.json({ "loggedin": true, "name": query.DNI_Profesor, "type": "Profesor" });
             //res.cookie("Details_Name", randomNumber, { maxAge: 900000, httpOnly: true });              
         }
@@ -76,8 +77,9 @@ app.post("/test", async function (req, res) {
             })
             console.log(al)
             if (al != null) {
+                res.cookie("id", al.Dni_Alumno, { maxAge: 900000, httpOnly: true });
                 res.json({ "loggedin": true, "name": al.Dni_Alumno, "type": "Alumno" });
-                //res.cookie("Details_Name", randomNumber, { maxAge: 900000, httpOnly: true });
+                
             }
             else {
                 res.json({ "loggedin": false })
@@ -195,7 +197,6 @@ class Course {
         this.ano_actual = ano_actual;
     }
 }
-//async function courseStudent 
 async function FetchCourses(req) {
     const ontainingCourses = await prisma.profesor.findMany({
         where: {
@@ -241,13 +242,13 @@ function settingJsonCourses(courses) {
 
         if (years[course_year] == null) {
             years[course_year] = [];
-            years[course_year].push(new Course(courses[i].Materia.Nombre, courses[i].Division.Ano_Escolar, courses[i].Division.Division_Escolar, courses[i].Fecha_Comienzo.getFullYear())
+            years[course_year].push(new Course(courses[i].Materia.Nombre,courses[i].Division.Division_Escolar ,courses[i].Division.Ano_Escolar , courses[i].Fecha_Comienzo.getFullYear())
             )
-            defined_courses[i] = new Course(courses[i].Materia.Nombre, courses[i].Division.Ano_Escolar, courses[i].Division.Division_Escolar, courses[i].Fecha_Comienzo.getFullYear())
+            defined_courses[i] = new Course(courses[i].Materia.Nombre,courses[i].Division.Division_Escolar ,courses[i].Division.Ano_Escolar , courses[i].Fecha_Comienzo.getFullYear())
 
         }
         else {
-            years[course_year].push(new Course(courses[i].Materia.Nombre, courses[i].Division.Ano_Escolar, courses[i].Division.Division_Escolar, courses[i].Fecha_Comienzo.getFullYear()))
+            years[course_year].push(new Course(courses[i].Materia.Nombre,courses[i].Division.Division_Escolar, courses[i].Division.Ano_Escolar , courses[i].Fecha_Comienzo.getFullYear()))
         }
         //    anos_escolares.courses[i].Fecha_Comienzo.getFullYear() = []; 
 
@@ -295,7 +296,19 @@ async function addstudent(req) {
     })
     console.log(sutdent);
 }
+async function test_add_notes (req) {
+    const added = await prisma.Clase.create({
+        data: {
+            Clase_ID: "",
+            Division_ID: "",
+            Materia_ID: "",
+            Profesor_ID: ""
 
+
+
+
+        } 
+}
 
 async function addclass(req) {
     const classs = await prisma.Clase.create({
