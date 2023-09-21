@@ -8,6 +8,7 @@ const prisma = new PrismaClient();
 import crypto from "crypto";
 import express, { json, query } from "express";
 import { Console } from "console";
+import { isSet } from "util/types";
 
 
 //declaring express
@@ -64,9 +65,9 @@ app.post("/test", async function (req, res) {
         });
         console.log(query)
         if (query != null) {
-            res.cookie("id", query.Dni_Alumno, { maxAge: 900000, httpOnly: true });
+            res.cookie("id", query.DNI_Profesor, { maxAge: 900000, httpOnly: true });
             res.json({ "loggedin": true, "name": query.DNI_Profesor, "type": "Profesor" });
-            //res.cookie("Details_Name", randomNumber, { maxAge: 900000, httpOnly: true });              
+                       
         }
         else {
             const al = await prisma.alumno.findFirst({
@@ -115,13 +116,19 @@ app.get("/login", async function (req, res) {
             },
         })
         al == null ?? res.json(al);
-        res.cookie("Details_Name", randomNumber, { maxAge: 900000, httpOnly: true });
+        res.cookie("Details_Name", randomNumber);
     }
 
 
     /*
 */
 });
+app.get("/logout", function (req,res){
+    if(isSet(req.cookies("id"))) {
+        res.clearCookie("id")
+    }
+
+})
 app.post("/grades", async function (req, res) {
     if (session.userId && session.userint != "Profesor") {
         idalumno = session.dni;
@@ -133,6 +140,7 @@ app.post("/grades", async function (req, res) {
 
 app.post("/profesor/years/courses", async function (req, res) {
     //console.log(req)
+   //console.log(req.cookies("id"))
     const courses = await FetchCourses(req.body)
     console.log(courses[0].cursos)
     const res_courses = settingJsonCourses(courses[0].cursos)
@@ -148,7 +156,9 @@ app.post("/profesor/years", async function (req, res) {
     console.log(years_worked)
     res.json(years_worked)
 })
-
+app.post("/test/courses/:year",async function (req,res){
+    FetchCoursesperyear()
+})
 app.post("/Grades", async function (req, res) {
     res.json(Fetchgradesal(req.body))
 })
@@ -158,6 +168,7 @@ app.post("/student/courses", async function (req, res) {
     res.json(courses[0].cursos)
 
 })
+app.post("/profesor/:year/")
 app.post("/alumno/faltas", async function (req, res) {
     res.json(fetchSkips(req.body))
 })
@@ -166,10 +177,11 @@ app.post("/profesor/courses/notas", async function (req, res) {
 })
 
 async function Fetchgradesal(req) {
-    if (session.userId) {
+    //dni = req
+    dni = 123541;
         const getData = await prisma.notas.findMany({
             where: {
-                Dni_Alumno: 4531
+                Dni_Alumno: dni
             },
             select: {
                 notas: true,
@@ -181,7 +193,7 @@ async function Fetchgradesal(req) {
 
 
         return (getData);
-    }
+    
 
 
 
@@ -198,12 +210,55 @@ class Course {
     }
 }
 async function FetchCourses(req) {
+    //dni = req;
+    const dni = 12233445;
     const ontainingCourses = await prisma.profesor.findMany({
         where: {
-            DNI_Profesor: 12233445,
+            DNI_Profesor: dni,
         },
         select: {
             cursos: {
+                select: {
+                    Materia: {
+                        select: {
+                            Nombre: true
+
+                        }
+
+                    },
+
+                    Division: {
+                        select: {
+                            Ano_Escolar: true,
+                            Division_Escolar: true
+
+                        }
+                    },
+                    Fecha_Comienzo: true,
+                    Fecha_Final: true
+                }
+
+            }
+
+        }
+    })
+
+    //console.log(JSON.stringify(ontainingCourses))
+    //return JSON.parse(ontainingCourses);
+    return ontainingCourses
+}
+async function  FetchCoursesperyear(ID,year){
+    const dni = 12233445;
+    const ontainingCourses = await prisma.profesor.findMany({
+        where: {
+            DNI_Profesor: dni,
+
+        },
+        select: {
+            cursos: {
+                where: {
+                    Fecha_Comienzo.year == year;
+                }
                 select: {
                     Materia: {
                         select: {
