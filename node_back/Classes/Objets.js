@@ -6,3 +6,4 @@ class Course {
         this.ano_actual = ano_actual;
     }
 }
+export {Course}

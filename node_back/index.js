@@ -9,7 +9,8 @@ import crypto from "crypto";
 import express, { json, query } from "express";
 import { Console } from "console";
 import { isSet } from "util/types";
-
+//import { prisma } from "./prismaClient/DB_client";
+//import { settingJsonCourses } from "Methods/formatting";
 
 //declaring express
 const app = express();
@@ -50,10 +51,9 @@ app.post("/test", async function (req, res) {
 
     //check session details
     console.log(req.body);
-    console.log(crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'))
     if (req.body["pwd"] != undefined && req.body["username"] != undefined) {
         const query = await prisma.profesor.findFirst({
-            /*   select:{
+            /*/   select:{
                    DNI_Profesor
                },*/
             where: {
@@ -63,7 +63,6 @@ app.post("/test", async function (req, res) {
                 }
             },
         });
-        console.log(query)
         if (query != null) {
             res.cookie("id", query.DNI_Profesor, { maxAge: 900000, httpOnly: true });
             res.json({ "loggedin": true, "name": query.DNI_Profesor, "type": "Profesor" });
@@ -145,7 +144,7 @@ app.post("/profesor/years/courses", async function (req, res) {
     console.log(courses[0].cursos)
     const res_courses = settingJsonCourses(courses[0].cursos)
     const years_worked = obtainingyears(courses[0].cursos)
-    
+    console.log(JSON.stringify(res_courses))
     res.json(res_courses)
     //res.json(courses[0].cursos)
 
@@ -168,7 +167,11 @@ app.post("/student/courses", async function (req, res) {
     res.json(courses[0].cursos)
 
 })
-app.post("/profesor/:year/")
+app.post("/profesor/years/course", async function (req,res){
+    req.body()
+    fetchcourseData()
+    //req.cookies
+})
 app.post("/alumno/faltas", async function (req, res) {
     res.json(fetchSkips(req.body))
 })
@@ -208,6 +211,9 @@ class Course {
         this.Division = Division;
         this.ano_actual = ano_actual;
     }
+}
+async function fetchcourseData(req){
+    
 }
 async function FetchCourses(req) {
     //dni = req;
@@ -257,8 +263,8 @@ async function  FetchCoursesperyear(ID,year){
         select: {
             cursos: {
                 where: {
-                    Fecha_Comienzo.year == year;
-                }
+                    Fecha_Comienzo: year,
+                },
                 select: {
                     Materia: {
                         select: {
@@ -288,33 +294,6 @@ async function  FetchCoursesperyear(ID,year){
     //return JSON.parse(ontainingCourses);
     return ontainingCourses
 }
-function settingJsonCourses(courses) {
-    var defined_courses = [];
-    var years = {};
-    var course_year;
-    for (var i = 0; i < courses.length; i++) {
-        course_year = courses[i].Fecha_Comienzo.getFullYear();
-
-        if (years[course_year] == null) {
-            years[course_year] = [];
-            years[course_year].push(new Course(courses[i].Materia.Nombre,courses[i].Division.Division_Escolar ,courses[i].Division.Ano_Escolar , courses[i].Fecha_Comienzo.getFullYear())
-            )
-            defined_courses[i] = new Course(courses[i].Materia.Nombre,courses[i].Division.Division_Escolar ,courses[i].Division.Ano_Escolar , courses[i].Fecha_Comienzo.getFullYear())
-
-        }
-        else {
-            years[course_year].push(new Course(courses[i].Materia.Nombre,courses[i].Division.Division_Escolar, courses[i].Division.Ano_Escolar , courses[i].Fecha_Comienzo.getFullYear()))
-        }
-        //    anos_escolares.courses[i].Fecha_Comienzo.getFullYear() = []; 
-
-        //  anos_escolares.courses[i].Fecha_Comienzo.getFullYear().push(new Course(courses[i].Materia.Nombre,courses[i].Division.Ano_Escolar,courses[i].Division.Division_Escolar,courses[i].Fecha_Comienzo.getFullYear()))
-
-    }
-    console.log(years)
-    //console.log(defined_courses);
-    return years;
-
-}
 function obtainingyears(courses){
     var years =[];
     var i;
@@ -340,6 +319,29 @@ async function fetchSkips(req) {
 
 
     return getData;
+}
+function settingJsonCourses(courses) {
+    var defined_courses = [];
+    var years = {};
+    var course_year;
+    for (var i = 0; i < courses.length; i++) {
+        course_year = courses[i].Fecha_Comienzo.getFullYear();
+
+        if (years[course_year] == null) {
+            years[course_year] = [];
+            years[course_year].push(new Course(courses[i].Materia.Nombre,courses[i].Division.Division_Escolar ,courses[i].Division.Ano_Escolar , courses[i].Fecha_Comienzo.getFullYear())
+            )
+            defined_courses[i] = new Course(courses[i].Materia.Nombre,courses[i].Division.Division_Escolar ,courses[i].Division.Ano_Escolar , courses[i].Fecha_Comienzo.getFullYear())
+
+        }
+        else {
+            years[course_year].push(new Course(courses[i].Materia.Nombre,courses[i].Division.Division_Escolar, courses[i].Division.Ano_Escolar , courses[i].Fecha_Comienzo.getFullYear()))
+        }
+    }
+    console.log(years)
+    //console.log(defined_courses);
+    return years;
+
 }
 
 /*
