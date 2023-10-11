@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model persona {
+  DNI        Int     @id(map: "PK_persona")
+  Nombre     String? @db.VarChar(50)
+  Apellido   String? @db.VarChar(50)
+  Mail       String? @db.VarChar(50)
+  Contrasena String? @db.VarChar(50)
+  Nivel      Int?
+}
+
+model division {
+  Division_ID      Int    @id(map: "PK_division")
+  Anio_Escolar     Int
+  Division_Escolar Int
+  Turno            String @db.VarChar(50)
+}
+
+model evaluaciones {
+  Evaluacion_ID Int      @id(map: "PK_evaluaciones")
+  Clase_ID      Int
+  Fecha         DateTime @db.Date
+  Detalles      String   @db.VarChar(50)
+}
+
+model faltas {
+  Falta_ID   Int      @id(map: "PK_faltas")
+  DNI_Alumno Int
+  Fecha      DateTime @db.Date
+  Tipo       Decimal  @db.Decimal(10, 1)
+  jutificada Int      @db.TinyInt
+}
+
+model materia {
+  Materia_ID      Int    @id(map: "PK_materia")
+  Nombre          String @db.VarChar(50)
+  Anio_escolar    Int
+  Horas_Semanales Int
+}
+
+model notas {
+  Notas_ID      Int     @id(map: "PK_notas")
+  Nota          Decimal @db.Decimal(10, 2)
+  DNI_Alumno    Int
+  Evaluacion_ID Int
+}
+
+model clase {
+  Clase_ID       Int       @id(map: "PK_clase")
+  Division_ID    Int
+  Materia_ID     String    @db.VarChar(50)
+  Profesor_ID    String    @db.VarChar(50)
+  Fecha_Comienzo DateTime  @db.Date
+  Fecha_Final    DateTime? @db.Date
+}
+
+model division_de_alumnos {
+  DivisionDA_ID   Int @id(map: "PK_division_de_alumnos")
+  DNI_Alumno      Int
+  Division_ID     Int
+  Anio_Calendario Int
+}
+
+model sysdiagrams {
+  name         String @db.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B6136BF3FAC") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
+
+  @@unique([principal_id, name], map: "UK_principal_name")
+}
