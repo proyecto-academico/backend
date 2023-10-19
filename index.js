@@ -8,7 +8,8 @@ const prisma = new PrismaClient();
 import crypto from "crypto";
 import express, { json, query } from "express";
 import { Console } from "console";
-
+const CryptoJS = require("crypto-js");
+//import {Crypto} from "crypto-js";
 
 //declaring express
 const app = express();
@@ -49,7 +50,7 @@ app.post("/test", async function (req, res) {
 
     //check session detailsCryptoJS.MD5
     console.log(req.body);
-    console.log(crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'))
+    
     if (req.body["pwd"] != undefined && req.body["username"] != undefined) {
         const query = await prisma.persona.findFirst({
             /*   select:{
@@ -87,7 +88,7 @@ app.post("/test", async function (req, res) {
 //
 app.get("/login", async function (req, res) {
     if (req.body["pwd"] != undefined && req.body["user"] != undefined) {
-        const query = await prisma.profesor.findFirst({
+        const query = await prisma.persona.findFirst({
             where: {
                 Mail: req.body["user"],
                 Contrasena: crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'),
@@ -110,24 +111,15 @@ app.get("/login", async function (req, res) {
 });
 app.post("/grades", async function (req, res) {
     var dni = 123322334;
-   /* if (session.userId && session.userint != "Profesor") {
-        idalumno = session.dni;
-    }
-    else {
-        //idalumno =
-    }*/
     res.json(Fetchgradesal())
 })
 
 app.post("/profesor/years/courses", async function (req, res) {
-    //console.log(req)
     const courses = await FetchCourses(req.body)
     console.log(courses[0].cursos)
     const res_courses = settingJsonCourses(courses[0].cursos)
     const years_worked = obtainingyears(courses[0].cursos)
-    
     res.json(res_courses)
-    //res.json(courses[0].cursos)
 
 })
 app.post("/profesor/years", async function (req, res) {
@@ -141,7 +133,7 @@ app.post("/Grades", async function (req, res) {
     res.json(Fetchgradesal(req.body))
 })
 app.post("/student/courses", async function (req, res) {
-    //console.log(req)
+    //c
     const courses = await FetchCourses(req.body)
     res.json(courses[0].cursos)
 
@@ -187,9 +179,9 @@ class Course {
 }
 //async function courseStudent 
 async function FetchCourses(req) {
-    const ontainingCourses = await prisma.profesor.findMany({
+    const ontainingCourses = await prisma.persona.findMany({
         where: {
-            DNI_Profesor: 12233445,
+            DNI: 12233445,
         },
         select: {
             cursos: {
@@ -248,9 +240,9 @@ function obtainingyears(courses){
 }
 
 async function fetchSkips(req) {
-    const getData = await prisma.alumno.findUnique({
+    const getData = await prisma.persona.findUnique({
         where: {
-            Dni_Alumno: req["dni"],
+            DNI: req["dni"],
         },
         select: {
             faltas: true,
