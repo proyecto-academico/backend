@@ -1,0 +1,13 @@
+La informacion es considerada un activo mas de las organizaciones, uno de los de mayor valor. Esto se debe a varios motivos: Una organizacion sin informacion no puede cumplir con las funciones para las cuales existen. Por ejemplo, sin los datos de sus ciudadanos no podrian gestionar loss tramites que requierien.
+Si la informacion de una organizacion es reconocida/obtenida por terceros no atuorizados esto podria ocasionar daños considerables a la organizacion como perdida de confiabilidad, imagen, incumplimiento legal, etc. Por otra parte, la informacion que cuenta la organizacion es de diferentes stipos y una de las tareas fundamientales de toda organizacion es conocer la informacion que maneja por lo cual debe tipificarla.
+Cada tipo de datos tendra su nivel de criticidad en funcion de la importancia que tiene para la organizacion. 
+Es fundamental tener en cuenta que existen amenazas que pueden afectar a la informacion. Deben de tener en cuenta ciertos omnceptos que explican como puede originarse un riesgo y que efectos puede provocar. Para eso se debe de tener en cuenta el proceso de seguridad de la informacion
+
+Amenazas:
+existen distintos tipos de amenazas y distintas formas de clasificarlas.
+Humanas: 
+	-Maliciaiosas 
+		-Intencionales
+		sIN Intencionales
+Naturales:
+Eventos Naturales que afectan y atacan
