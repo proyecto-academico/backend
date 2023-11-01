@@ -3,11 +3,12 @@
 
 generator client {
   provider = "prisma-client-js"
+  //previewFeatures = ["microsoftSqlServer"]
 }
 
 datasource db {
-  //provider = "sqlserver"
-  provider = "mysql"
+  provider = "sqlserver"
+  //url = "sqlserver://localhost:1433;integratedSecurity=true;database=proyecto-academico;trustServerCertificate=true;
   url      = env("DATABASE_URL")
 }
 model administracion {
@@ -19,31 +20,25 @@ model administracion {
 
   
 }
-//model persona {
-//  DNI      Int      @id 
-//  Nombre          String?  @db.VarChar(50) 
-//  Apellido        String?   @db.VarChar(50)
- // Mail            String?   @db.VarChar(50)
- // Contrasena String        @db.VarChar(50)
- // Nivel Int 
-//}
-model alumno {
-  Dni_Alumno      Int      @id 
-  Nombre          String?  @db.VarChar(50) 
-  Apellido        String?   @db.VarChar(50)
-  Mail            String?   @db.VarChar(50)
-  contrasena String        @db.VarChar(50)
-  divisiones divison_de_alumno[]
-  notas notas[]
-  faltas faltas[]
-}
+ model persona {
+   DNI      Int      @id 
+   Nombre          String?  @db.VarChar(50) 
+   Apellido        String?   @db.VarChar(50)
+   Mail            String?   @db.VarChar(50)
+   Contrasena String        @db.VarChar(50)
+   Nivel Int 
+   cursos Clase[]
+   notas notas[]
+   faltas faltas[]
+   divisiones divison_de_alumno[]
+ }
 model Clase {
   Clase_ID   Int        @id @default(autoincrement())
   Division_ID Int 
   Division division? @relation(fields:[Division_ID], references: [Division_ID])
   Materia_ID   Int @unique 
   Materia materia? @relation(fields:[Materia_ID], references: [Materia_ID])
-  Profesor profesor? @relation(fields: [Profesor_ID], references: [DNI_Profesor])
+  Profesor persona? @relation(fields: [Profesor_ID], references: [DNI])
   Profesor_ID  Int
   Fecha_Comienzo    DateTime? @db.Date()
   Fecha_Final       DateTime? @db.Date()
@@ -60,7 +55,7 @@ model division {
 }
 model divison_de_alumno {
   DivisionDA_ID  Int @id @default(autoincrement())
-  Alumno alumno? @relation(fields: [DNi_Alumno], references: [Dni_Alumno])
+  Alumno persona? @relation(fields: [DNi_Alumno], references: [DNI])
   DNi_Alumno Int? 
   Division_ID Int
   division_actual division?  @relation(fields: [Division_ID], references: [Division_ID])
@@ -74,7 +69,7 @@ model evaluaciones {
 }
 model faltas {
   Falta_ID Int @id @default(autoincrement())
-  Alumno alumno? @relation(fields: [DNI_Alumno], references: [Dni_Alumno])
+  Alumno persona? @relation(fields: [DNI_Alumno], references: [DNI])
   DNI_Alumno Int
   Fecha DateTime? @db.Date() 
   Tipo Decimal @db.Decimal(10, 1)
@@ -89,34 +84,16 @@ model materia {
 }
 model notas {
   Notas_ID Int @id @default(autoincrement())
-  Nota Decimal @db.Decimal(10, 2)
-  Alumno alumno? @relation(fields: [DNI_Alumno], references: [Dni_Alumno])
-  DNI_Alumno Int
-  Evaluacion_ID Int @unique
-}
-//model notas2 {
-// Notas_ID Int @id @default(autoincrement())
-//  Nota Decimal @db.Decimal(10, 2)
-//  Alumno persona? @relation(fields: [DNI_Alumno], references: [DNI])
-//  DNI_Alumno Int
-//  Evaluacion_ID Int @unique
-//} 
+   Nota Decimal @db.Decimal(10, 2)
+   Alumno persona? @relation(fields: [DNI_Alumno], references: [DNI])
+   DNI_Alumno Int
+   Evaluacion_ID Int @unique
+ } 
 model profesor {
   DNI_Profesor Int @id @default(autoincrement())
   Nombre	String @db.VarChar(50)
   Apellido	String @db.VarChar(50)
   Mail	String @db.VarChar(50)
   Contrasena String @db.VarChar(50)
-  cursos Clase[]
+  
 }
-// Environment variables declared in this file are automatically made available to Prisma.
-//See the documentation for more detail: https://pris.ly/d/prisma-schema#accessing-environment-variables-from-the-schema
-
-// Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
-// See the documentation for all the connection string options: https://pris.ly/d/connection-strings
-//DATABASE_URL="mysql://root:@localhost:3306/proyecto?schema=public"
-//DATABASE_URL="mysql://root:@localhost:3306/fdsfkon?schema=public"
-//#DATABASE_URL="sqlserver://10.120.3.119:1433;database=Personas;user=sa;password=123;encrypt=true"
-//#DATABASE_URL="sqlserver://10.120.2.114:1433;initialCatalog=sample;integratedSecurity=true;database=Personas;user=sa;password=123;encrypt=true"
-//#DATABASE_URL="sqlserver://10.120.2.114:1433;initialCatalog=sample;integratedSecurity=true;database=Personas;user=sa;password=123;encrypt=true"
-////DATABASE_URL="sqlserver://10.120.2.181:1433;initialCatalog=sample;integratedSecurity=true;database=Personas;user=sa;password=123;encrypt=true"
