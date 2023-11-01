@@ -8,15 +8,20 @@ const prisma = new PrismaClient();
 import crypto from "crypto";
 import express, { json, query } from "express";
 import { Console } from "console";
-const CryptoJS = require("crypto-js");
 //import {Crypto} from "crypto-js";
+import MD5 from "crypto-js/md5.js"
+import { env } from "process";
+//import { HmacMD5 } from "crypto-js";
+import pkg from 'crypto-js';
+const { HmacMD5 } = pkg;
+import Base64 from 'crypto-js/enc-base64.js';
 
 //declaring express
 const app = express();
 
 
 //route
-const port = 3070;
+const port = 3080;
 
 
 //uses
@@ -50,7 +55,9 @@ app.post("/test", async function (req, res) {
 
     //check session detailsCryptoJS.MD5
     console.log(req.body);
-    
+    const hashDigest = MD5(req.body);
+    const hmacDigest = Base64.stringify(HmacMD5(hashDigest, "informatica"));
+    console.log(hmacDigest)
     if (req.body["pwd"] != undefined && req.body["username"] != undefined) {
         const query = await prisma.persona.findFirst({
             /*   select:{
@@ -59,7 +66,7 @@ app.post("/test", async function (req, res) {
             where: {
                 AND: {
                     Mail: req.body["username"],
-                    Contrasena: CryptoJS.MD5(req.body["pwd"])
+                    //Contrasena: MD5(req.body["pwd"])
                     //Contrasena: crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'),
                 }
             },
@@ -67,11 +74,11 @@ app.post("/test", async function (req, res) {
         console.log(query)
         if (query != null) {
             switch(query.Nivel){
-                case 1: {
+                case 2: {
                     res.cookie("DNI",  query.DNI, { maxAge: 900000, httpOnly: true });
                     res.json({ "loggedin": true, "name": query.DNI, "type": "Profesor" });
                 }
-                case 0:{
+                case 3:{
                     res.json({ "loggedin": true, "name": query.DNI, "type": "Alumno" });
                 }
             }

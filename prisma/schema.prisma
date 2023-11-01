@@ -59,9 +59,9 @@ model notas {
   Notas_ID      Int     @id(map: "PK_notas")
   Nota          Decimal @db.Decimal(10, 2)
   DNI_Alumno    Int
-  Alumno persona? @relation(fields: [DNI_Alumno], references: [DNI])
+  Alumno persona? @relation(fields: [DNI_Alumno], references: [DNI],onUpdate: NoAction, onDelete: NoAction)
   Evaluacion_ID Int
-  Evaluacion evaluaciones? @relation(fields: [Evaluacion_ID], references: [Evaluacion_ID])
+  Evaluacion evaluaciones? @relation(fields: [Evaluacion_ID], references: [Evaluacion_ID], onDelete: NoAction)
 }
 
 model clase {
