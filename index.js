@@ -74,22 +74,22 @@ app.post("/test", async function (req, res) {
         });
         console.log(query)
         if (query != null) {
-            switch(query.Nivel){
+            switch (query.Nivel) {
                 case 2: {
-                    res.cookie("DNI",  query.DNI, { maxAge: 900000, httpOnly: true });
+                    res.cookie("DNI", query.DNI, { maxAge: 900000, httpOnly: true });
                     res.json({ "loggedin": true, "name": query.DNI, "type": "Profesor" });
                 }
-                case 3:{
+                case 3: {
                     res.json({ "loggedin": true, "name": query.DNI, "type": "Alumno" });
                 }
             }
         }
         else {
-            res.send({ "loggedin": false })    
+            res.send({ "loggedin": false })
         }
     }
     else {
-        res.send({ "loggedin": false }) 
+        res.send({ "loggedin": false })
     }
 });
 
@@ -121,34 +121,34 @@ app.post("/Grades", async function (req, res) {
     var dni = 123322334;
     res.json(Fetchgradesal(req.body))
 })
-app.post("/dbdata",async function (req, res) {
+app.post("/dbdata", async function (req, res) {
     const query = await prisma.persona.findMany({
         select: {
-            Contrasena:true,
-            DNI:true,
-            Mail:true
+            Contrasena: true,
+            DNI: true,
+            Mail: true
         },
-        where:{
+        where: {
             Nivel: 3
         }
     })
-    
+
     res.json(query)
 })
-app.post("/chpsw",async function (req, res) {
+app.post("/chpsw", async function (req, res) {
     const hashDigest = MD5(req.body["pwd"]);
     const hmacDigest = Base64.stringify(HmacMD5(hashDigest, "informatica"));
     console.log(hmacDigest)
     console.log(typeof hmacDigest)
     const query = await prisma.persona.updateMany({
-        where:{
-            Nivel:3,
+        where: {
+            Nivel: 3,
         },
-        data:{
-            Contrasena:hmacDigest
+        data: {
+            Contrasena: hmacDigest
         }
-        
-        
+
+
 
     })
 
@@ -157,6 +157,9 @@ app.post("/chpsw",async function (req, res) {
 app.post("/profesor/years/courses", async function (req, res) {
     const courses = await FetchCourses(req.body)
     console.log(courses[0].cursos)
+    if(courses == undefined){
+        res.json({Courses:"Empty"})
+    }
     const res_courses = settingJsonCourses(courses[0].cursos)
     const years_worked = obtainingyears(courses[0].cursos)
     res.json(res_courses)
@@ -183,21 +186,21 @@ app.post("/profesor/courses/notas", async function (req, res) {
 })
 
 async function Fetchgradesal(req) {
-        var Dni_Alumno = 123322334;
-        const getData = await prisma.notas.findMany({
-            where: {
-                Dni_Alumno: Dni_Alumno
-            },
-            select: {
-                notas: true,
+    var Dni_Alumno = 123322334;
+    const getData = await prisma.notas.findMany({
+        where: {
+            Dni_Alumno: Dni_Alumno
+        },
+        select: {
+            notas: true,
 
 
 
-            },
-        })
+        },
+    })
 
 
-        return (getData);
+    return (getData);
 
 
 
@@ -207,7 +210,7 @@ async function Fetchgradesal(req) {
 
 }
 class Course {
-    constructor(ID,Materia, Division, Ano_Escolar, ano_actual) {
+    constructor(ID, Materia, Division, Ano_Escolar, ano_actual) {
         this.ID = ID;
         this.Materia = Materia;
         this.Ano_Escolar = Ano_Escolar;
@@ -224,23 +227,21 @@ async function FetchCourses(req) {
         select: {
             clases: {
                 select: {
-                    Clase_ID:true,
-
-                    Materia: {
+                    materia: {
                         select: {
                             Nombre: true
 
                         }
 
                     },
-
-                    Division: {
+                    Divisio: {
                         select: {
-                            Ano_Escolar: true,
+                            Anio_Escolar: true,
                             Division_Escolar: true
-
                         }
                     },
+                    Division_ID:true,
+                    Clase_ID: true,
                     Fecha_Comienzo: true,
                     Fecha_Final: true
                 }
@@ -259,24 +260,24 @@ function settingJsonCourses(courses) {
     var course_year;
     for (var i = 0; i < courses.length; i++) {
         course_year = courses[i].Fecha_Comienzo.getFullYear();
-        defined_courses[i] = new Course(courses[i].Clase_ID,courses[i].Materia.Nombre, courses[i].Division.Division_Escolar, courses[i].Division.Ano_Escolar, courses[i].Fecha_Comienzo.getFullYear())
+        defined_courses[i] = new Course(courses[i].Clase_ID, courses[i].Materia.Nombre, courses[i].Division.Division_Escolar, courses[i].Division.Ano_Escolar, courses[i].Fecha_Comienzo.getFullYear())
     }
     //console.log(defined_courses);
     return defined_courses;
 
 
 }
-function obtainingyears(courses){
-    var years =[];
+function obtainingyears(courses) {
+    var years = [];
     var i;
-    for(i=0;i<courses.length;i++){
+    for (i = 0; i < courses.length; i++) {
         var course_year = courses[i].Fecha_Comienzo.getFullYear();
-        
-        if (years.indexOf(course_year) == -1){
+
+        if (years.indexOf(course_year) == -1) {
             years.push(course_year);
         }
     }
-     return years
+    return years
 }
 
 async function fetchSkips(req) {
@@ -293,7 +294,6 @@ async function fetchSkips(req) {
     return getData;
 }
 
-app.post("c")
 
 app.post("/test/courses/:year", async function (req, res) {
     FetchCoursesperyear()

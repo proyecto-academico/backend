@@ -68,7 +68,7 @@ model notas {
 model clase {
   Clase_ID       Int       @id(map: "PK_clase")
   Division_ID    Int
-  Division division? @relation(fields: [Division_ID], references: [Division_ID])
+  Divisio division? @relation(fields: [Division_ID], references: [Division_ID])
   Materia_ID     Int   
   materia materia? @relation(fields: [Materia_ID], references: [Materia_ID])
   Profesor_ID    Int    
