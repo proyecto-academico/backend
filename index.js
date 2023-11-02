@@ -55,18 +55,19 @@ app.post("/test", async function (req, res) {
 
     //check session detailsCryptoJS.MD5
     console.log(req.body);
-    const hashDigest = MD5(req.body);
+    const hashDigest = MD5(req.body["pwd"]);
     const hmacDigest = Base64.stringify(HmacMD5(hashDigest, "informatica"));
     console.log(hmacDigest)
-    if (req.body["pwd"] != undefined && req.body["username"] != undefined) {
+    console.log(typeof hmacDigest)
+    if (req.body["pwd"] != undefined && req.body["user"] != undefined) {
         const query = await prisma.persona.findFirst({
             /*   select:{
                    DNI
                },*/
             where: {
                 AND: {
-                    Mail: req.body["username"],
-                    //Contrasena: MD5(req.body["pwd"])
+                    Mail: req.body["user"],
+                    Contrasena: hmacDigest
                     //Contrasena: crypto.createHash('sha256', req.body["pwd"]).update(req.body["pwd"]).digest('hex'),
                 }
             },
@@ -116,9 +117,41 @@ app.get("/login", async function (req, res) {
     /*
 */
 });
-app.post("/grades", async function (req, res) {
+app.post("/Grades", async function (req, res) {
     var dni = 123322334;
-    res.json(Fetchgradesal())
+    res.json(Fetchgradesal(req.body))
+})
+app.post("/dbdata",async function (req, res) {
+    const query = await prisma.persona.findMany({
+        select: {
+            Contrasena:true,
+            DNI:true,
+            Mail:true
+        },
+        where:{
+            Nivel: 3
+        }
+    })
+    
+    res.json(query)
+})
+app.post("/chpsw",async function (req, res) {
+    const hashDigest = MD5(req.body["pwd"]);
+    const hmacDigest = Base64.stringify(HmacMD5(hashDigest, "informatica"));
+    console.log(hmacDigest)
+    console.log(typeof hmacDigest)
+    const query = await prisma.persona.updateMany({
+        where:{
+            Nivel:3,
+        },
+        data:{
+            Contrasena:hmacDigest
+        }
+        
+        
+
+    })
+
 })
 
 app.post("/profesor/years/courses", async function (req, res) {
@@ -136,9 +169,6 @@ app.post("/profesor/years", async function (req, res) {
     res.json(years_worked)
 })
 
-app.post("/Grades", async function (req, res) {
-    res.json(Fetchgradesal(req.body))
-})
 app.post("/student/courses", async function (req, res) {
     //c
     const courses = await FetchCourses(req.body)
@@ -177,7 +207,8 @@ async function Fetchgradesal(req) {
 
 }
 class Course {
-    constructor(Materia, Division, Ano_Escolar, ano_actual) {
+    constructor(ID,Materia, Division, Ano_Escolar, ano_actual) {
+        this.ID = ID;
         this.Materia = Materia;
         this.Ano_Escolar = Ano_Escolar;
         this.Division = Division;
@@ -188,11 +219,13 @@ class Course {
 async function FetchCourses(req) {
     const ontainingCourses = await prisma.persona.findMany({
         where: {
-            DNI: 12233445,
+            DNI: 301464,
         },
         select: {
-            cursos: {
+            clases: {
                 select: {
+                    Clase_ID:true,
+
                     Materia: {
                         select: {
                             Nombre: true
@@ -226,7 +259,7 @@ function settingJsonCourses(courses) {
     var course_year;
     for (var i = 0; i < courses.length; i++) {
         course_year = courses[i].Fecha_Comienzo.getFullYear();
-        defined_courses[i] = new Course(courses[i].Materia.Nombre, courses[i].Division.Division_Escolar, courses[i].Division.Ano_Escolar, courses[i].Fecha_Comienzo.getFullYear())
+        defined_courses[i] = new Course(courses[i].Clase_ID,courses[i].Materia.Nombre, courses[i].Division.Division_Escolar, courses[i].Division.Ano_Escolar, courses[i].Fecha_Comienzo.getFullYear())
     }
     //console.log(defined_courses);
     return defined_courses;
@@ -259,3 +292,185 @@ async function fetchSkips(req) {
 
     return getData;
 }
+
+app.post("c")
+
+app.post("/test/courses/:year", async function (req, res) {
+    FetchCoursesperyear()
+})
+app.post("/alumno/faltas", async function (req, res) {
+    res.json(fetchSkips(req.body))
+})
+app.post("/profesor/courses/notas", async function (req, res) {
+    res.json(Fetchgradesal(req.body))
+})
+/*
+async function Fetchgradesal(req) {
+    //dni = req
+    var dni = 123322334;
+    const getData = await prisma.notas.findMany({
+        where: {
+            Dni_Alumno: 123322334
+        },
+        select: {
+            notas: true,
+
+
+
+        },
+    })
+
+
+    return (getData);
+
+
+
+
+
+
+
+}
+async function fetchcourseData(req) {
+    const dni = 12233445;
+    const ontainingCourses = await prisma.profesor.findMany({
+        where: {
+            DNI_Profesor: dni,
+        },
+        select: {
+            cursos: {
+                select: {
+                    Materia: {
+                        select: {
+                            Nombre: true
+
+                        }
+
+                    },
+
+                    Division: {
+                        select: {
+                            Ano_Escolar: true,
+                            Division_Escolar: true
+
+                        }
+                    },
+                    Fecha_Comienzo: true,
+                    Fecha_Final: true
+                }
+
+            }
+
+        }
+    })
+
+    //console.log(JSON.stringify(ontainingCourses))
+    //return JSON.parse(ontainingCourses);
+    return ontainingCourses
+
+}
+async function FetchCourses(req) {
+    //dni = req;
+    const dni = 12233445;
+    const ontainingCourses = await prisma.profesor.findMany({
+        where: {
+            DNI_Profesor: dni,
+        },
+        select: {
+            cursos: {
+                select: {
+                    Materia: {
+                        select: {
+                            Nombre: true
+
+                        }
+
+                    },
+
+                    Division: {
+                        select: {
+                            Ano_Escolar: true,
+                            Division_Escolar: true
+
+                        }
+                    },
+                    Fecha_Comienzo: true,
+                    Fecha_Final: true,
+                    Clase_ID: true
+                }
+
+            }
+
+        }
+    })
+
+    //console.log(JSON.stringify(ontainingCourses))
+    //return JSON.parse(ontainingCourses);
+    return ontainingCourses
+}
+async function FetchCoursesperyear(ID, year) {
+    const dni = 12233445;
+    const ontainingCourses = await prisma.profesor.findMany({
+        where: {
+            DNI_Profesor: dni,
+
+        },
+        select: {
+            cursos: {
+                where: {
+                    Fecha_Comienzo: year,
+                },
+                select: {
+                    Materia: {
+                        select: {
+                            Nombre: true
+
+                        }
+
+                    },
+
+                    Division: {
+                        select: {
+                            Ano_Escolar: true,
+                            Division_Escolar: true
+
+                        }
+                    },
+                    Fecha_Comienzo: true,
+                    Fecha_Final: true
+                }
+
+            }
+
+        }
+    })
+
+    //console.log(JSON.stringify(ontainingCourses))
+    //return JSON.parse(ontainingCourses);
+    return ontainingCourses
+}
+function obtainingyears(courses) {
+    var years = [];
+    var i;
+    for (i = 0; i < courses.length; i++) {
+        var course_year = courses[i].Fecha_Comienzo.getFullYear();
+
+        if (years.indexOf(course_year) == -1) {
+            years.push(course_year);
+        }
+    }
+    return years
+}
+
+async function fetchSkips(req) {
+    const getData = await prisma.alumno.findUnique({
+        where: {
+            Dni_Alumno: req["dni"],
+        },
+        select: {
+            faltas: true,
+        },
+    })
+
+
+    return getData;
+}*/
