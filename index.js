@@ -166,23 +166,37 @@ app.post("/profesor/years/courses", async function (req, res) {
 
 })
 
+app.post("/profesor/years/courses/details", async function (req, res) {
+    const courses = await obtaincoursedetails(req.body)
+    console.log(courses[0].Division.alumnos)
+    if(courses == undefined){
+        res.json({Courses:"Empty"})
+    }
+    const res_courses = settingJsonCourses(courses[0].cursos)
+    const years_worked = obtainingyears(courses[0].cursos)
+    res.json(res_courses)
+
+})
+
 
 app.post("/student/courses", async function (req, res) {
     //c
     const courses = await FetchCourses(req.body)
-    const res_courses = settingJsonCourses(courses[0].cursos)
+    const res_courses = settingjsonalumnos(courses[0].cursos)
     res.json(res_courses)
 
 })
 app.post("/alumno/faltas", async function (req, res) {
     res.json(fetchSkips(req.body))
 })
-app.post("/profesor/courses/notas", async function (req, res) {
+/*app.post("/profesor/courses/notas", async function (req, res) {
     res.json(Fetchgradesal(req.body))
-})
+})*/
 
 app.post("/profesor/courses/notas", async function (req, res) {
-    res.json(Fetchgradesal(req.body))
+    const Grades = Fetchgradesal(req.body)
+    const jsonGrades = settingjsonnotas(Grades[0])
+    res.json(jsonGrades)
 })
 
 async function Fetchgradesal(req) {
@@ -245,39 +259,11 @@ async function FetchCourses(req) {
     //return JSON.parse(ontainingCourses);
     return ontainingCourses
 }
-function settingJsonCourses(courses) {
-    var defined_courses = [];
-    var course_year;
-    for (var i = 0; i < courses.length; i++) {
-        course_year = courses[i].Fecha_Comienzo.getFullYear();
-        defined_courses[i] = new Course(courses[i].Clase_ID, courses[i].Materia.Nombre, courses[i].Division.Division_Escolar, courses[i].Division.Ano_Escolar, courses[i].Fecha_Comienzo.getFullYear())
-    }
-    //console.log(defined_courses);
-    return defined_courses;
-
-
-}
-function settingjsonnotas(notas){
-    var deffinednotas = [];
-    var nota;
-    for (var i=0;i< notas[0].length;i++){
-        deffinednotas[i] = new notasO(notas[i].nota_id,notas[i].nota,notas[i].NombreEvaluacion)
-    }
-    return deffinednotas
-}
-function settingjsonalumnos() {
-    var deffinednotas = [];
-    var nota;
-    for (var i=0;i< notas[0].length;i++){
-        deffinednotas[i] = new alumnosO(notas[i].dni,notas[i].Nombre,notas[i].Apellido)
-    }
-    return deffinednotas;
-}
 async function obtaincoursedetails(req){
     dni = 301464
     const getData = await prisma.clase.findMany({
         where: {
-            Clase_ID: req["classid"]
+            Clase_ID: req["class_id"]
 
         },
         select: {
@@ -308,6 +294,38 @@ async function fetchSkips(req) {
 
 
     return getData;
+}
+
+
+
+
+function settingJsonCourses(courses) {
+    var defined_courses = [];
+    var course_year;
+    for (var i = 0; i < courses.length; i++) {
+        course_year = courses[i].Fecha_Comienzo.getFullYear();
+        defined_courses[i] = new Course(courses[i].Clase_ID, courses[i].Materia.Nombre, courses[i].Division.Division_Escolar, courses[i].Division.Ano_Escolar, courses[i].Fecha_Comienzo.getFullYear())
+    }
+    //console.log(defined_courses);
+    return defined_courses;
+
+
+}
+function settingjsonnotas(notas){
+    var deffinednotas = [];
+    var nota;
+    for (var i=0;i< notas[0].length;i++){
+        deffinednotas[i] = new notasO(notas[i].nota_id,notas[i].nota,notas[i].NombreEvaluacion)
+    }
+    return deffinednotas
+}
+function settingjsonalumnos() {
+    var deffinednotas = [];
+    var nota;
+    for (var i=0;i< notas[0].length;i++){
+        deffinednotas[i] = new alumnosO(notas[i].dni,notas[i].Nombre,notas[i].Apellido)
+    }
+    return deffinednotas;
 }
 
 class Course {

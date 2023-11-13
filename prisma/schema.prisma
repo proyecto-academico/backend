@@ -68,13 +68,14 @@ model notas {
 model clase {
   Clase_ID       Int       @id(map: "PK_clase")
   Division_ID    Int
-  Divisio division? @relation(fields: [Division_ID], references: [Division_ID])
   Materia_ID     Int   
   materia materia? @relation(fields: [Materia_ID], references: [Materia_ID])
   Profesor_ID    Int    
   Profesor persona? @relation(fields: [Profesor_ID], references: [DNI])
   Fecha_Comienzo DateTime  @db.Date
   Fecha_Final    DateTime? @db.Date
+  Division division? @relation(fields: [Division_ID], references: [Division_ID])
+
   evaluaciones evaluaciones[]
 }
 
@@ -84,7 +85,7 @@ model division_de_alumnos {
   Division_ID     Int
   Anio_Calendario Int
   
-  division division[]
+  division division? @relation(fields: [Division_ID],references: [Division_ID])
   Alumno persona? @relation(fields: [DNI_Alumno], references: [DNI])
   
 }
