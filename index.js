@@ -165,17 +165,13 @@ app.post("/profesor/years/courses", async function (req, res) {
     res.json(res_courses)
 
 })
-app.post("/profesor/years", async function (req, res) {
-    const courses = await FetchCourses(req.body)
-    const years_worked = obtainingyears(courses[0].cursos)
-    console.log(years_worked)
-    res.json(years_worked)
-})
+
 
 app.post("/student/courses", async function (req, res) {
     //c
     const courses = await FetchCourses(req.body)
-    res.json(courses[0].cursos)
+    const res_courses = settingJsonCourses(courses[0].cursos)
+    res.json(res_courses)
 
 })
 app.post("/alumno/faltas", async function (req, res) {
@@ -185,39 +181,33 @@ app.post("/profesor/courses/notas", async function (req, res) {
     res.json(Fetchgradesal(req.body))
 })
 
+app.post("/profesor/courses/notas", async function (req, res) {
+    res.json(Fetchgradesal(req.body))
+})
+
 async function Fetchgradesal(req) {
     var Dni_Alumno = 123322334;
     const getData = await prisma.notas.findMany({
         where: {
-            Dni_Alumno: Dni_Alumno
+            Dni_Alumno: Dni_Alumno,
+            Clase_ID: req["Clase ID"]
         },
         select: {
             notas: true,
-
-
-
         },
     })
-
-
     return (getData);
 
-
-
-
-
-
-
 }
-class Course {
-    constructor(ID, Materia, Division, Ano_Escolar, ano_actual) {
-        this.ID = ID;
-        this.Materia = Materia;
-        this.Ano_Escolar = Ano_Escolar;
-        this.Division = Division;
-        this.ano_actual = ano_actual;
-    }
-}
+
+app.delete("/profesor/courses/grades/delete", async function (req,res){
+    id_nota = req["nota_id"]
+    const Query = prisma.notas.delete({
+        where:{
+            nota_id: id_nota
+        }
+    })
+})
 //async function courseStudent 
 async function FetchCourses(req) {
     const ontainingCourses = await prisma.persona.findMany({
@@ -234,7 +224,7 @@ async function FetchCourses(req) {
                         }
 
                     },
-                    Divisio: {
+                    Division: {
                         select: {
                             Anio_Escolar: true,
                             Division_Escolar: true
@@ -267,19 +257,44 @@ function settingJsonCourses(courses) {
 
 
 }
-function obtainingyears(courses) {
-    var years = [];
-    var i;
-    for (i = 0; i < courses.length; i++) {
-        var course_year = courses[i].Fecha_Comienzo.getFullYear();
-
-        if (years.indexOf(course_year) == -1) {
-            years.push(course_year);
-        }
+function settingjsonnotas(notas){
+    var deffinednotas = [];
+    var nota;
+    for (var i=0;i< notas[0].length;i++){
+        deffinednotas[i] = new notasO(notas[i].nota_id,notas[i].nota,notas[i].NombreEvaluacion)
     }
-    return years
+    return deffinednotas
 }
+function settingjsonalumnos() {
+    var deffinednotas = [];
+    var nota;
+    for (var i=0;i< notas[0].length;i++){
+        deffinednotas[i] = new notasO(notas[i].nota_id,notas[i].nota,notas[i].NombreEvaluacion)
+    }
+}
+async function obtaincoursedetails(req){
+    dni = 301464
+    const getData = await prisma.clase.findMany({
+        where: {
+            Clase_ID: req["classid"]
 
+        },
+        select: {
+            Division:{
+                select:{
+                 alumnos:{
+                    Alumno:true
+                 }   
+
+                
+                }
+            }
+                
+        },
+    })
+    return getData
+
+} 
 async function fetchSkips(req) {
     const getData = await prisma.persona.findUnique({
         where: {
@@ -294,17 +309,48 @@ async function fetchSkips(req) {
     return getData;
 }
 
+class Course {
+    constructor(ID, Materia, Division, Ano_Escolar, ano_actual) {
+        this.ID = ID;
+        this.Materia = Materia;
+        this.Ano_Escolar = Ano_Escolar;
+        this.Division = Division;
+        this.ano_actual = ano_actual;
+    }
+}
+class notasO {
+    constructor(ID,Nota,NombreEvaluacion){
+        this.ID = ID
+        this.Nota = Nota
+        this.NombreEvaluacion = NombreEvaluacion
+    }
+}
+/*
 
+function obtainingyears(courses) {
+    var years = [];
+    var i;
+    for (i = 0; i < courses.length; i++) {
+        var course_year = courses[i].Fecha_Comienzo.getFullYear();
+
+        if (years.indexOf(course_year) == -1) {
+            years.push(course_year);
+        }
+    }
+    return years
+}
+app.post("/profesor/years", async function (req, res) {
+    const courses = await FetchCourses(req.body)
+    const years_worked = obtainingyears(courses[0].cursos)
+    console.log(years_worked)
+    res.json(years_worked)
+})
 app.post("/test/courses/:year", async function (req, res) {
     FetchCoursesperyear()
 })
 app.post("/alumno/faltas", async function (req, res) {
     res.json(fetchSkips(req.body))
 })
-app.post("/profesor/courses/notas", async function (req, res) {
-    res.json(Fetchgradesal(req.body))
-})
-/*
 async function Fetchgradesal(req) {
     //dni = req
     var dni = 123322334;
