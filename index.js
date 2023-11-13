@@ -269,8 +269,9 @@ function settingjsonalumnos() {
     var deffinednotas = [];
     var nota;
     for (var i=0;i< notas[0].length;i++){
-        deffinednotas[i] = new notasO(notas[i].nota_id,notas[i].nota,notas[i].NombreEvaluacion)
+        deffinednotas[i] = new alumnosO(notas[i].dni,notas[i].Nombre,notas[i].Apellido)
     }
+    return deffinednotas;
 }
 async function obtaincoursedetails(req){
     dni = 301464
@@ -320,9 +321,16 @@ class Course {
 }
 class notasO {
     constructor(ID,Nota,NombreEvaluacion){
-        this.ID = ID
-        this.Nota = Nota
-        this.NombreEvaluacion = NombreEvaluacion
+        this.ID = ID;
+        this.Nota = Nota;
+        this.NombreEvaluacion = NombreEvaluacion;
+    }
+}
+class alumnosO {
+    constructor(ID,Nombre,Apellido){
+        this.ID = ID;
+        this.Nombre;
+        this.Apellido = Apellido;
     }
 }
 /*
