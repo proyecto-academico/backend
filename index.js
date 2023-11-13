@@ -172,8 +172,8 @@ app.post("/profesor/years/courses/details", async function (req, res) {
     if(courses == undefined){
         res.json({Courses:"Empty"})
     }
-    const res_courses = settingJsonCourses(courses[0].cursos)
-    const years_worked = obtainingyears(courses[0].cursos)
+    const res_courses = settingjsonalumnos(courses[0].Division.alumnos)
+    //const years_worked = obtainingyears(courses[0].cursos)
     res.json(res_courses)
 
 })
@@ -221,7 +221,13 @@ app.delete("/profesor/courses/grades/delete", async function (req,res){
             nota_id: id_nota
         }
     })
-})
+    Query ? res.send("Completed") : res.send("Error")
+})/*
+app.put("/profesor/course/grades/update", async function (req,res){
+    const query = prisma.notas.update({
+        where
+    })
+})*/
 //async function courseStudent 
 async function FetchCourses(req) {
     const ontainingCourses = await prisma.persona.findMany({
@@ -254,7 +260,6 @@ async function FetchCourses(req) {
 
         }
     })
-
     //console.log(JSON.stringify(ontainingCourses))
     //return JSON.parse(ontainingCourses);
     return ontainingCourses
